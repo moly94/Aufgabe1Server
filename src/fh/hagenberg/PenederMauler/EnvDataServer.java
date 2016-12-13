@@ -1,18 +1,23 @@
 package fh.hagenberg.PenederMauler;
 
+import com.sun.deploy.util.Waiter;
+
 import java.net.InetAddress;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Timer;
 
 /**
  * Created by Felix on 07.12.2016.
  */
 public class EnvDataServer extends UnicastRemoteObject implements IEnvironmentData{
 
-    public EnvData mPressure;
+    public static EnvData mEnvData;
+
+    private static EnvDataTask task;
 
     public EnvDataServer() throws RemoteException {
         super();
@@ -20,16 +25,27 @@ public class EnvDataServer extends UnicastRemoteObject implements IEnvironmentDa
 
     public static void main(String[] args) {
         try {
-            EnvDataServer cookieServer= new EnvDataServer();
-            Naming.rebind(InetAddress.getLocalHost().getHostAddress()+"/10EnvDataServer", cookieServer);
-            System.out.println("Server is waiting!");
+            EnvDataServer envServer= new EnvDataServer();
+            /*Naming.rebind(InetAddress.getLocalHost().getHostAddress()+"/EnvDataServer", envServer);
+            System.out.println("Server is waiting!");*/
+
+            String codebase= "http://" + (InetAddress.getLocalHost().getHostAddress()) + ":8080/RMIClasses/";
+            // last"/"
+            System.setProperty("java.rmi.server.codebase", codebase);
+            // startlocalRMI-Registry ifneeded
+            LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+            Registry reg = LocateRegistry.getRegistry("127.0.0.1");
+            // registerService
+            reg.rebind("EnvData", envServer);
+            System.out.println("Der Server wartet auf Anfragen");
+            Timer dataTimer = new Timer();
+            mEnvData=new EnvData();
+            task=new EnvDataTask(mEnvData);
+            dataTimer.schedule(task, 0, 2000);
+            System.out.println(task.getEnvData().getAirPressure());
         } catch (Exception _e) {
             _e.printStackTrace();
         }
-    }
-
-    private void changePressure(){
-
     }
 
     @Override
@@ -42,7 +58,7 @@ public class EnvDataServer extends UnicastRemoteObject implements IEnvironmentDa
     @Override
     public EnvData requestEnvironmentData(String _type) throws RemoteException {
         if (_type.equals("pressure"))
-            return new EnvData();
+            return task.getEnvData();
         else
             return null;
     }
