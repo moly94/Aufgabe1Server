@@ -29,14 +29,14 @@ public class EnvDataServer extends UnicastRemoteObject implements IEnvironmentDa
             /*Naming.rebind(InetAddress.getLocalHost().getHostAddress()+"/EnvDataServer", envServer);
             System.out.println("Server is waiting!");*/
 
-            String codebase= "http://" + (InetAddress.getLocalHost().getHostAddress()) + ":8080/RMIClasses/";
+            String codebase= "http://" + (InetAddress.getLocalHost().getHostAddress()) + ":8080/EnvDataServer/";
             // last"/"
             System.setProperty("java.rmi.server.codebase", codebase);
-            // startlocalRMI-Registry ifneeded
-            LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+            // startlocalRMI-Registry if needed
+            //LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
             Registry reg = LocateRegistry.getRegistry("127.0.0.1");
             // registerService
-            reg.rebind("EnvData", envServer);
+            reg.rebind("EnvDataServer", envServer);
             System.out.println("Der Server wartet auf Anfragen");
             Timer dataTimer = new Timer();
             mEnvData=new EnvData();
@@ -66,6 +66,7 @@ public class EnvDataServer extends UnicastRemoteObject implements IEnvironmentDa
     @Override
     public EnvData[] requestAll() throws RemoteException {
         EnvData[] env = new EnvData[1];
+        env[0]=task.getEnvData();
         return env;
     }
 }

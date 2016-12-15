@@ -1,11 +1,12 @@
 package fh.hagenberg.PenederMauler;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Mark on 07.12.2016.
  */
-public class EnvData {
+public class EnvData implements Serializable{
     private Date mTimeStamp;
     private float mAirPressure;
 

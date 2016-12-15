@@ -1,5 +1,6 @@
 package fh.hagenberg.PenederMauler;
 
+import java.sql.Timestamp;
 import java.util.TimerTask;
 
 /**
@@ -19,7 +20,7 @@ public class EnvDataTask extends TimerTask {
 
     @Override
     public void run() {
-        envData.setAirPressure((float) (Math.random()*100));
-        //System.out.println(envData.getAirPressure());
+        envData.setAirPressure((float) (Math.random()*257));
+        envData.setTimeStamp(new Timestamp(System.currentTimeMillis()));
     }
 }
